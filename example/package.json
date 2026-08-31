@@ -1,0 +1,30 @@
+{
+  "name": "react-native-continued-task-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "build:ios": "xcodebuild ONLY_ACTIVE_ARCH=YES -workspace ios/ContinuedTaskExample.xcworkspace -UseNewBuildSystem=YES -scheme ContinuedTaskExample -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -quiet",
+    "build:android": "cd android && ./gradlew assembleDebug -DtestBuildType=debug -Dorg.gradle.jvmargs=-Xmx4g",
+    "build:web": "expo export --platform web"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~55.0.12",
+    "expo": "~55.0.30",
+    "expo-status-bar": "~55.0.6",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-native": "0.83.10",
+    "react-native-nitro-modules": "^0.35.3",
+    "react-native-web": "~0.21.0"
+  },
+  "private": true,
+  "devDependencies": {
+    "expo-dev-client": "~55.0.39",
+    "react-native-builder-bob": "^0.41.0",
+    "react-native-monorepo-config": "^0.4.0"
+  }
+}

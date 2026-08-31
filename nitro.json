@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["continuedtask"],
+  "ios": {
+    "iosModuleName": "ContinuedTask"
+  },
+  "android": {
+    "androidNamespace": ["continuedtask"],
+    "androidCxxLibName": "continuedtask"
+  },
+  "autolinking": {
+    "ContinuedTask": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "ContinuedTask"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "ContinuedTask"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
