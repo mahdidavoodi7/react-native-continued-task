@@ -2,7 +2,9 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "react-native-continued-task": ["./src/index"]
+      "react-native-continued-task": [
+        "./src/index"
+      ]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -13,7 +15,9 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -27,5 +31,11 @@
     "strict": true,
     "target": "ESNext",
     "verbatimModuleSyntax": true
-  }
+  },
+  "exclude": [
+    "plugin",
+    "lib",
+    "nitrogen",
+    "**/node_modules"
+  ]
 }
