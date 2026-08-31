@@ -2,7 +2,11 @@ buildscript {
   ext.ContinuedTask = [
     kotlinVersion: "2.0.21",
     minSdkVersion: 24,
-    compileSdkVersion: 36
+    compileSdkVersion: 36,
+    // Nitro requires NDK 27+. Pinned rather than left to AGP's default so a
+    // partially downloaded NDK in the SDK cannot break the build; an app can
+    // override it with rootProject.ext.ndkVersion.
+    ndkVersion: "27.1.12297006"
   ]
 
   ext.getExtOrDefault = { prop ->
@@ -40,6 +44,7 @@ android {
   namespace "com.margelo.nitro.continuedtask"
 
   compileSdkVersion getExtOrDefault("compileSdkVersion")
+  ndkVersion getExtOrDefault("ndkVersion")
 
   defaultConfig {
     minSdkVersion getExtOrDefault("minSdkVersion")
@@ -104,9 +109,33 @@ android {
     sourceCompatibility JavaVersion.VERSION_17
     targetCompatibility JavaVersion.VERSION_17
   }
+
+  defaultConfig {
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  }
+
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
 }
 
 dependencies {
   implementation "com.facebook.react:react-android"
   implementation project(":react-native-nitro-modules")
+
+  // 2.11.0 raised minSdk to 23; getWorkInfoByIdFlow arrived in 2.9.0.
+  api "androidx.work:work-runtime:2.11.2"
+  implementation "androidx.core:core-ktx:1.13.1"
+
+  testImplementation "junit:junit:4.13.2"
+  // android.jar is stubbed in JVM unit tests, so org.json returns null for
+  // everything. The real implementation makes the record round-trip testable
+  // without Robolectric.
+  testImplementation "org.json:json:20250107"
+
+  androidTestImplementation "androidx.test:core:1.6.1"
+  androidTestImplementation "androidx.test:runner:1.6.2"
+  androidTestImplementation "androidx.test.ext:junit:1.2.1"
+  androidTestImplementation "androidx.work:work-testing:2.11.2"
+  androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1"
 }

@@ -13,7 +13,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "continuedtask.example"
+      "bundleIdentifier": "continuedtask.example",
+      "deploymentTarget": "15.1"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,6 +27,21 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "react-native-continued-task",
+        {
+          "identifierPrefixes": [
+            "continuedtask.example.export",
+            "continuedtask.example.render"
+          ],
+          "enableGPU": true,
+          "androidForegroundServiceTypes": [
+            "dataSync"
+          ]
+        }
+      ]
+    ]
   }
 }

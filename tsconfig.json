@@ -30,7 +30,11 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ESNext",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "types": [
+      "jest",
+      "node"
+    ]
   },
   "exclude": [
     "plugin",

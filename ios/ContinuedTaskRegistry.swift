@@ -13,6 +13,7 @@ import Foundation
 /// It also keeps a strong reference to each live task handle. The launch
 /// handler fires some time after `submit` returns, and it must still find the
 /// handle even if JS has dropped its own reference by then.
+@available(iOS 26.0, *)
 final class ContinuedTaskRegistry {
   static let shared = ContinuedTaskRegistry()
 
@@ -29,7 +30,6 @@ final class ContinuedTaskRegistry {
   /// `BGTaskSchedulerPermittedIdentifiers`. A repeat call for an identifier
   /// this process already registered is a no-op that returns `true` — never a
   /// second `register` call, and never a crash.
-  @available(iOS 26.0, *)
   func registerIfNeeded(identifier: String) -> Bool {
     lock.lock()
     if registeredIdentifiers.contains(identifier) {
