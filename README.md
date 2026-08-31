@@ -338,7 +338,11 @@ Making this work means getting the dev-launcher to load Harness's manifest URL o
 
 ### iOS device QA checklist
 
-The example app is a checklist, not a demo: one button per row, with a live log. Build it to a physical iPhone on iOS 26 and work down the list. You do **not** need Apple's debug SPI — unlike `BGAppRefreshTask`, a continued processing task begins immediately after submission, so tapping the button is enough.
+**See [docs/DEVICE-QA.md](docs/DEVICE-QA.md) for the full walkthrough** — signing, the bundle-identifier trap, and what each result means.
+
+The example app is a QA instrument, not a demo. It records results to disk so the checks that require backgrounding or force-quitting survive the very thing they test, grades the automatic ones itself, and hands you a markdown report at the end. You do **not** need Apple's debug SPI — unlike `BGAppRefreshTask`, a continued processing task begins immediately after submission, so tapping the button is enough.
+
+Thirteen checks: eight automatic, two you confirm by looking at the Live Activity, three armed before the app goes away and resolved when it comes back.
 
 1. **Double submit** — tap twice quickly. Two tasks, no crash. This is the one that _kills the app_ if the native registration guard is wrong, so it goes first.
 2. **Submit without progress** — background the app and wait. Expect a stop with reason `expired`.

@@ -45,10 +45,21 @@ describe('getSubmitErrorCode', () => {
     ).toBe('unknown');
   });
 
-  it('does not match a code appearing mid-message', () => {
+  it('finds the code when the platform wraps the message', () => {
+    // Nitro on Android prefixes a thrown Kotlin exception with the method and
+    // the exception class, so the marker is not at the front. Verified against
+    // a real device run.
+    const android = new Error(
+      'ContinuedTaskManager.submit(...): com.margelo.nitro.continuedtask.SubmitException: ' +
+        'continued-task/invalid-options: totalUnitCount must be greater than 0'
+    );
+    expect(getSubmitErrorCode(android)).toBe('invalid-options');
+  });
+
+  it('reads the code from an unwrapped Swift-style message', () => {
     expect(
-      getSubmitErrorCode(new Error('wrapped: continued-task/unavailable: x'))
-    ).toBe('unknown');
+      getSubmitErrorCode(new Error('continued-task/unavailable: simulator'))
+    ).toBe('unavailable');
   });
 
   it.each([[undefined], [null], ['a string'], [{ message: 'not an Error' }]])(

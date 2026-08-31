@@ -36,7 +36,7 @@
             "continuedtask.example.export",
             "continuedtask.example.render"
           ],
-          "enableGPU": true,
+          "enableGPU": false,
           "androidForegroundServiceTypes": [
             "dataSync"
           ]
