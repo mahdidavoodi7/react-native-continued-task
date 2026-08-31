@@ -9,7 +9,9 @@ module.exports = function (api) {
 
   return getConfig(
     {
-      presets: ['babel-preset-expo'],
+      // The harness preset is what installs `describe`/`it`/`expect` into the
+      // test bundles it serves. It is inert outside a harness run.
+      presets: ['babel-preset-expo', 'react-native-harness/babel-preset'],
     },
     { root, pkg }
   );

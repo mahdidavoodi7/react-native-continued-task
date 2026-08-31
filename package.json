@@ -34,7 +34,9 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "!android/src/test",
+    "!android/src/androidTest"
   ],
   "scripts": {
     "example": "yarn workspace react-native-continued-task-example",

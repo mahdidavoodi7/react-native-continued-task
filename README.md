@@ -313,14 +313,14 @@ WorkManager declares `SystemForegroundService` but not your `foregroundServiceTy
 
 `BGContinuedProcessingTask` cannot be tested in CI and does not work in the Simulator — `BGTaskScheduler` returns `.unavailable` there, and Apple's debug SPI for triggering tasks is device-only and grounds for App Store rejection in a shipping build. Everything else is automated.
 
-| Layer | Runs on | Covers | Command |
-| --- | --- | --- | --- |
-| Jest | CI | `getSubmitErrorCode`, the unsupported-platform manager, and the config plugin's mods against a real `AndroidManifest.xml` fixture | `yarn test` |
-| Kotlin JUnit | CI | The WorkManager stop-reason mapping and the persisted record's JS spellings | `./gradlew :react-native-continued-task:testDebugUnitTest` |
-| Android instrumented | emulator | The reconciliation store and the foreground-service notification against a real Android runtime | `./gradlew :react-native-continued-task:connectedDebugAndroidTest` |
-| React Native Harness | emulator | The real HybridObjects inside the real app — task lifecycle, progress clamping, stop events, listener removal | `yarn harness:android` |
-| Native compile | CI | That the Swift and Kotlin satisfy the generated specs | `yarn turbo run build:ios build:android` |
-| Manual device QA | iPhone, iOS 26 | Everything about `BGContinuedProcessingTask` | the example app |
+| Layer                | Runs on        | Covers                                                                                                                            | Command                                                            |
+| -------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Jest                 | CI             | `getSubmitErrorCode`, the unsupported-platform manager, and the config plugin's mods against a real `AndroidManifest.xml` fixture | `yarn test`                                                        |
+| Kotlin JUnit         | CI             | The WorkManager stop-reason mapping and the persisted record's JS spellings                                                       | `./gradlew :react-native-continued-task:testDebugUnitTest`         |
+| Android instrumented | emulator       | The reconciliation store and the foreground-service notification against a real Android runtime                                   | `./gradlew :react-native-continued-task:connectedDebugAndroidTest` |
+| React Native Harness | emulator       | The real HybridObjects inside the real app — task lifecycle, progress clamping, stop events, listener removal                     | `yarn harness:android` — **see the caveat below**                  |
+| Native compile       | CI             | That the Swift and Kotlin satisfy the generated specs                                                                             | `yarn turbo run build:ios build:android`                           |
+| Manual device QA     | iPhone, iOS 26 | Everything about `BGContinuedProcessingTask`                                                                                      | the example app                                                    |
 
 Two choices worth explaining:
 
@@ -328,11 +328,19 @@ Two choices worth explaining:
 
 **The config plugin's mods are pure and tested against fixtures.** They are the part most likely to silently break someone else's build — a dropped `.*`, a misspelled entitlement key, a missing `tools:node="merge"` — and they need no device to check.
 
+#### Harness: wired, not yet green
+
+The Harness suite in [`harness/`](harness/) is written and its runner starts, installs the app, boots it and bundles each test file on the emulator — but the tests do not execute yet. They fail with `ReferenceError: Property 'describe' doesn't exist`.
+
+The cause is the Expo entry point. Harness serves an Expo manifest at `/` whose `launchAsset` points at its own entry bundle, which is the `expo-dev-client` / `expo-updates` protocol. This example's Expo native project instead bakes its entry to Metro's virtual entry (`.expo/.virtual-metro-entry.bundle`), so the app never evaluates Harness's entry and never installs the `describe`/`it`/`expect` globals. Harness's bridge _is_ injected into every bundle it serves, which is why the runner reports ready and the test files bundle successfully — the failure is only that the runtime module is missing from the bundle the app actually loads.
+
+Making this work means getting the dev-launcher to load Harness's manifest URL on launch. Everything else about the setup — config, runner, entry, tests, the CI job — is in place and rooted correctly. Until then the native surface is covered by the Android instrumented tests and the iOS device checklist.
+
 ### iOS device QA checklist
 
 The example app is a checklist, not a demo: one button per row, with a live log. Build it to a physical iPhone on iOS 26 and work down the list. You do **not** need Apple's debug SPI — unlike `BGAppRefreshTask`, a continued processing task begins immediately after submission, so tapping the button is enough.
 
-1. **Double submit** — tap twice quickly. Two tasks, no crash. This is the one that *kills the app* if the native registration guard is wrong, so it goes first.
+1. **Double submit** — tap twice quickly. Two tasks, no crash. This is the one that _kills the app_ if the native registration guard is wrong, so it goes first.
 2. **Submit without progress** — background the app and wait. Expect a stop with reason `expired`.
 3. **Cancel from the Live Activity** — background, then cancel. Expect `expired` (iOS cannot distinguish this from an expiry).
 4. **Swipe the app away** — relaunch and check the reconcile lines. Expect one `app-terminated` record and no stop listener having fired. This cannot be automated; nothing on the device can simulate the swipe.
