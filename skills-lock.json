@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "build-nitro-modules": {
+      "source": "margelo/react-native-skills",
+      "sourceType": "github",
+      "skillPath": "skills/build-nitro-modules/SKILL.md",
+      "computedHash": "9fce6b96add81fc0baf4594edd0c70c811c25ab2109d25b16f148c46c6d754b4"
+    }
+  }
+}

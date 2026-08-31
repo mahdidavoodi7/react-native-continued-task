@@ -83,4 +83,5 @@ ios/generated
 android/generated
 
 # React Native Nitro Modules
-nitrogen/
+# nitrogen/generated is committed on purpose - consumers must never run nitrogen.
+!nitrogen/

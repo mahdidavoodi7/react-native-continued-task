@@ -18,7 +18,7 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-native": "0.83.10",
-    "react-native-nitro-modules": "^0.35.3",
+    "react-native-nitro-modules": "0.37.1",
     "react-native-web": "~0.21.0"
   },
   "private": true,

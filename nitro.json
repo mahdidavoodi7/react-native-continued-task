@@ -1,4 +1,5 @@
 {
+  "$schema": "https://nitro.margelo.com/nitro.schema.json",
   "cxxNamespace": ["continuedtask"],
   "ios": {
     "iosModuleName": "ContinuedTask"
@@ -8,16 +9,16 @@
     "androidCxxLibName": "continuedtask"
   },
   "autolinking": {
-    "ContinuedTask": {
+    "ContinuedTaskManager": {
       "ios": {
         "language": "swift",
-        "implementationClassName": "ContinuedTask"
+        "implementationClassName": "HybridContinuedTaskManager"
       },
       "android": {
         "language": "kotlin",
-        "implementationClassName": "ContinuedTask"
+        "implementationClassName": "HybridContinuedTaskManager"
       }
     }
   },
-  "ignorePaths": ["node_modules"]
+  "ignorePaths": ["**/node_modules"]
 }
