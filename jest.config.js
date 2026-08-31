@@ -22,4 +22,4 @@ module.exports = {
     '!**/*.nitro.ts',
     '!**/__tests__/**',
   ],
-}
+};

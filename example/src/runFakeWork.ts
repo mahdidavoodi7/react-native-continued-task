@@ -1,4 +1,4 @@
-import type { ContinuedTask } from 'react-native-continued-task'
+import type { ContinuedTask } from 'react-native-continued-task';
 
 /**
  * Stands in for real long-running work: a fixed number of steps, each taking
@@ -15,12 +15,12 @@ export async function runFakeWork(
   onStep: (step: number) => void
 ): Promise<void> {
   for (let step = 1; step <= steps; step += 1) {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     if (task.state !== 'running' && task.state !== 'pending') {
-      return
+      return;
     }
-    task.setProgress(step, steps)
-    task.updateTitle(label, `${step} of ${steps}`)
-    onStep(step)
+    task.setProgress(step, steps);
+    task.updateTitle(label, `${step} of ${steps}`);
+    onStep(step);
   }
 }

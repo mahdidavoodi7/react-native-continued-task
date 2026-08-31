@@ -1,16 +1,16 @@
-import type { ConfigPlugin } from '@expo/config-plugins'
+import type { ConfigPlugin } from '@expo/config-plugins';
 import {
   createRunOncePlugin,
   withAndroidManifest,
   withEntitlementsPlist,
   withInfoPlist,
-} from '@expo/config-plugins'
-import { addForegroundServiceConfig } from './addForegroundServiceConfig'
-import type { ContinuedTaskPluginOptions } from './ContinuedTaskPluginOptions'
-import { setGpuEntitlement } from './setGpuEntitlement'
-import { setPermittedIdentifiers } from './setPermittedIdentifiers'
+} from '@expo/config-plugins';
+import { addForegroundServiceConfig } from './addForegroundServiceConfig';
+import type { ContinuedTaskPluginOptions } from './ContinuedTaskPluginOptions';
+import { setGpuEntitlement } from './setGpuEntitlement';
+import { setPermittedIdentifiers } from './setPermittedIdentifiers';
 
-const pkg = require('../../package.json') as { name: string; version: string }
+const pkg = require('../../package.json') as { name: string; version: string };
 
 const withContinuedTask: ConfigPlugin<ContinuedTaskPluginOptions | void> = (
   config,
@@ -20,7 +20,7 @@ const withContinuedTask: ConfigPlugin<ContinuedTaskPluginOptions | void> = (
     identifierPrefixes = [],
     enableGPU = false,
     androidForegroundServiceTypes = ['dataSync' as const],
-  } = options ?? {}
+  } = options ?? {};
 
   // No UIBackgroundModes value is written. BGProcessingTask documents that it
   // needs `processing` and BGAppRefreshTask that it needs `fetch`;
@@ -30,34 +30,34 @@ const withContinuedTask: ConfigPlugin<ContinuedTaskPluginOptions | void> = (
     infoPlistConfig.modResults = setPermittedIdentifiers(
       infoPlistConfig.modResults,
       identifierPrefixes
-    )
-    return infoPlistConfig
-  })
+    );
+    return infoPlistConfig;
+  });
 
   config = withEntitlementsPlist(config, (entitlementsConfig) => {
     entitlementsConfig.modResults = setGpuEntitlement(
       entitlementsConfig.modResults,
       enableGPU
-    )
-    return entitlementsConfig
-  })
+    );
+    return entitlementsConfig;
+  });
 
   config = withAndroidManifest(config, (manifestConfig) => {
     manifestConfig.modResults = addForegroundServiceConfig(
       manifestConfig.modResults,
       androidForegroundServiceTypes
-    )
-    return manifestConfig
-  })
+    );
+    return manifestConfig;
+  });
 
-  return config
-}
+  return config;
+};
 
-export { addForegroundServiceConfig } from './addForegroundServiceConfig'
+export { addForegroundServiceConfig } from './addForegroundServiceConfig';
 export type {
   AndroidForegroundServiceTypeOption,
   ContinuedTaskPluginOptions,
-} from './ContinuedTaskPluginOptions'
-export { setGpuEntitlement } from './setGpuEntitlement'
-export { setPermittedIdentifiers } from './setPermittedIdentifiers'
-export default createRunOncePlugin(withContinuedTask, pkg.name, pkg.version)
+} from './ContinuedTaskPluginOptions';
+export { setGpuEntitlement } from './setGpuEntitlement';
+export { setPermittedIdentifiers } from './setPermittedIdentifiers';
+export default createRunOncePlugin(withContinuedTask, pkg.name, pkg.version);

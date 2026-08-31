@@ -1,10 +1,10 @@
-import { AndroidConfig } from '@expo/config-plugins'
-import type { AndroidManifest } from '@expo/config-plugins/build/android/Manifest'
-import type { AndroidForegroundServiceTypeOption } from './ContinuedTaskPluginOptions'
+import { AndroidConfig } from '@expo/config-plugins';
+import type { AndroidManifest } from '@expo/config-plugins/build/android/Manifest';
+import type { AndroidForegroundServiceTypeOption } from './ContinuedTaskPluginOptions';
 import {
   FOREGROUND_SERVICE_PERMISSIONS,
   WORK_MANAGER_SERVICE,
-} from './ContinuedTaskPluginOptions'
+} from './ContinuedTaskPluginOptions';
 
 /**
  * Declares the permissions and the merged `SystemForegroundService` entry the
@@ -20,36 +20,36 @@ export function addForegroundServiceConfig(
   androidManifest: AndroidManifest,
   types: AndroidForegroundServiceTypeOption[]
 ): AndroidManifest {
-  AndroidConfig.Manifest.ensureToolsAvailable(androidManifest)
+  AndroidConfig.Manifest.ensureToolsAvailable(androidManifest);
 
   const permissions = [
     'android.permission.FOREGROUND_SERVICE',
     'android.permission.POST_NOTIFICATIONS',
     ...types.map((type) => FOREGROUND_SERVICE_PERMISSIONS[type]),
-  ]
+  ];
   for (const permission of permissions) {
-    AndroidConfig.Permissions.ensurePermission(androidManifest, permission)
+    AndroidConfig.Permissions.ensurePermission(androidManifest, permission);
   }
 
-  const application = androidManifest.manifest.application?.[0]
+  const application = androidManifest.manifest.application?.[0];
   if (application === undefined) {
-    return androidManifest
+    return androidManifest;
   }
 
-  const services = application.service ?? []
+  const services = application.service ?? [];
   const merged = {
     $: {
       'android:name': WORK_MANAGER_SERVICE,
       'android:foregroundServiceType': types.join('|'),
       'tools:node': 'merge',
     },
-  }
+  };
   application.service = [
     ...services.filter(
       (service) => service.$?.['android:name'] !== WORK_MANAGER_SERVICE
     ),
     merged as (typeof services)[number],
-  ]
+  ];
 
-  return androidManifest
+  return androidManifest;
 }

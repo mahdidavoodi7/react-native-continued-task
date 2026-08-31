@@ -1,12 +1,12 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react';
 
 export interface LogLine {
-  id: number
-  at: string
-  text: string
+  id: number;
+  at: string;
+  text: string;
 }
 
-let nextLineId = 0
+let nextLineId = 0;
 
 /**
  * A running log the QA checklist reads from. Device QA is the only way to
@@ -14,19 +14,19 @@ let nextLineId = 0
  * rather than in the console.
  */
 export function useContinuedTaskLog() {
-  const [lines, setLines] = useState<LogLine[]>([])
+  const [lines, setLines] = useState<LogLine[]>([]);
 
   const log = useCallback((text: string) => {
-    nextLineId += 1
+    nextLineId += 1;
     setLines((current) =>
       [
         { id: nextLineId, at: new Date().toLocaleTimeString(), text },
         ...current,
       ].slice(0, 200)
-    )
-  }, [])
+    );
+  }, []);
 
-  const clear = useCallback(() => setLines([]), [])
+  const clear = useCallback(() => setLines([]), []);
 
-  return { lines, log, clear }
+  return { lines, log, clear };
 }

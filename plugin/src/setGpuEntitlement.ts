@@ -1,5 +1,5 @@
-import type { JSONObject } from '@expo/json-file'
-import { GPU_ENTITLEMENT_KEY } from './ContinuedTaskPluginOptions'
+import type { JSONObject } from '@expo/json-file';
+import { GPU_ENTITLEMENT_KEY } from './ContinuedTaskPluginOptions';
 
 /**
  * Adds or removes the background GPU entitlement.
@@ -13,8 +13,9 @@ export function setGpuEntitlement(
   enableGPU: boolean
 ): JSONObject {
   if (enableGPU) {
-    return { ...entitlements, [GPU_ENTITLEMENT_KEY]: true }
+    return { ...entitlements, [GPU_ENTITLEMENT_KEY]: true };
   }
-  const { [GPU_ENTITLEMENT_KEY]: _removed, ...rest } = entitlements
-  return rest
+  const rest = { ...entitlements };
+  delete rest[GPU_ENTITLEMENT_KEY];
+  return rest;
 }

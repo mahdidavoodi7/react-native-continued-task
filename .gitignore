@@ -85,3 +85,6 @@ android/generated
 # React Native Nitro Modules
 # nitrogen/generated is committed on purpose - consumers must never run nitrogen.
 !nitrogen/
+
+# React Native Harness cache
+.harness/

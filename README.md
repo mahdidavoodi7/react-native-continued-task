@@ -216,6 +216,10 @@ interface TaskStopEvent {
 | `app-terminated` | both        | Reconstructed on next launch; only ever seen on `KnownTask.stopReason`          |
 | `unknown`        | both        | Read `native`                                                                   |
 
+#### iOS cannot tell you the user cancelled
+
+`BGContinuedProcessingTask` delivers user cancellation and system expiration through the same `expirationHandler`, which takes no arguments. There is nothing in the shipping SDK that distinguishes them, so this library reports `'expired'` with `native.name` of `'expirationHandler'` rather than guessing at `'user-cancelled'`. Treat the two as one case on iOS. Android _can_ distinguish them, and does.
+
 ## Platform behavior you have to design around
 
 ### Submission must be foreground and user-initiated
@@ -307,32 +311,34 @@ WorkManager declares `SystemForegroundService` but not your `foregroundServiceTy
 
 ## Testing
 
-`BGContinuedProcessingTask` cannot be tested in CI and does not work in the Simulator — `BGTaskScheduler` returns `.unavailable` there, and Apple's debug SPI for triggering tasks is device-only and grounds for App Store rejection in a shipping build. Plan for manual device QA; this repo's example app has a checklist.
+`BGContinuedProcessingTask` cannot be tested in CI and does not work in the Simulator — `BGTaskScheduler` returns `.unavailable` there, and Apple's debug SPI for triggering tasks is device-only and grounds for App Store rejection in a shipping build. Everything else is automated.
 
-`react-native-nitro-modules` ships no Jest mock and cannot be instantiated under plain Jest, so testing is split:
+| Layer | Runs on | Covers | Command |
+| --- | --- | --- | --- |
+| Jest | CI | `getSubmitErrorCode`, the unsupported-platform manager, and the config plugin's mods against a real `AndroidManifest.xml` fixture | `yarn test` |
+| Kotlin JUnit | CI | The WorkManager stop-reason mapping and the persisted record's JS spellings | `./gradlew :react-native-continued-task:testDebugUnitTest` |
+| Android instrumented | emulator | The reconciliation store and the foreground-service notification against a real Android runtime | `./gradlew :react-native-continued-task:connectedDebugAndroidTest` |
+| React Native Harness | emulator | The real HybridObjects inside the real app — task lifecycle, progress clamping, stop events, listener removal | `yarn harness:android` |
+| Native compile | CI | That the Swift and Kotlin satisfy the generated specs | `yarn turbo run build:ios build:android` |
+| Manual device QA | iPhone, iOS 26 | Everything about `BGContinuedProcessingTask` | the example app |
 
-- **Jest** covers the JS surface — `getSubmitErrorCode`, the unsupported-platform manager, and the config plugin's mods against a fixture.
-- **[React Native Harness](https://react-native-harness.dev)** covers the native surface on a real device.
+Two choices worth explaining:
 
-## SDK verification (2026-08-31)
+**The stop-reason mapping is a pure function** (`TaskStopReasons`) so it can be unit-tested directly. Provoking a real six-hour `dataSync` timeout or a genuine `STOP_REASON_QUOTA` is not something a test can arrange, and the constants are easy to get wrong — `STOP_REASON_FOREGROUND_SERVICE_TIMEOUT` is `-128`, not a positive value, and `STOP_REASON_UNKNOWN` is `-512`. The mapping references them symbolically and the test asserts they are still negative.
 
-Verified against the **iOS 26.5 SDK** shipped with Xcode 26.5 (`BackgroundTasks.framework/Headers` and `BackgroundTasks.apinotes`), not against DocC.
+**The config plugin's mods are pure and tested against fixtures.** They are the part most likely to silently break someone else's build — a dropped `.*`, a misspelled entitlement key, a missing `tools:node="merge"` — and they need no device to check.
 
-**Matches the documented API.** `BGContinuedProcessingTaskRequest` (iOS 26.0+, `API_UNAVAILABLE(macos, tvos, visionos, watchos, macCatalyst)`) has exactly one initializer, `initWithIdentifier:title:subtitle:`. `title`/`subtitle` are read-write on the request and read-only on the task, with `updateTitle:subtitle:`. `BGContinuedProcessingTask` conforms to `NSProgressReporting`. `BGTaskScheduler.supportedResources` is a class property, iOS 26.0+.
+### iOS device QA checklist
 
-**`Resources` in Swift.** `BGContinuedProcessingTaskRequestResourcesDefault = 0` carries no `NS_SWIFT_NAME`, and Swift's importer drops zero-valued `NS_OPTIONS` members, so there is **no** `.default` spelling — the empty option set `[]` is correct. Only `BGContinuedProcessingTaskRequestResourcesGPU` has `NS_SWIFT_NAME(gpu)`, giving `.gpu`.
+The example app is a checklist, not a demo: one button per row, with a live log. Build it to a physical iPhone on iOS 26 and work down the list. You do **not** need Apple's debug SPI — unlike `BGAppRefreshTask`, a continued processing task begins immediately after submission, so tapping the button is enough.
 
-**`SubmissionStrategy` has a trap.** The enum is declared `Fail = 0`, `Queue = 1`, but the `strategy` property documents its default as **`Queue`**. The zero value is not the default, so the library always sets `strategy` explicitly rather than relying on the raw value.
-
-**Registration timing, undocumented elsewhere.** `registerForTaskWithIdentifier:usingQueue:launchHandler:` says launch handlers must be registered before the app finishes launching — _"(`BGContinuedProcessingTask` registrations are exempt from this requirement)"_. That exemption is what makes per-job wildcard identifiers, registered lazily at submit time, a legal design.
-
-**`UIBackgroundModes`: not required.** `BGProcessingTask`'s header doc says it "requires setting the `processing` … capability" and `BGAppRefreshTask`'s says `fetch`. `BGContinuedProcessingTask`'s doc comment says nothing of the kind — it is the only one of the three without that sentence. Xcode ships no machine-readable enumeration of `UIBackgroundModes` values to check against, and `DVTPortalCachedPortalCapabilities.json` has no `UIBackgroundModes`-backed capability for continued processing. The evidence is negative rather than positive, but it is consistent: the config plugin writes no `UIBackgroundModes` value.
-
-**GPU entitlement confirmed.** Xcode's `DVTPortalCachedPortalCapabilities.json` defines it as `com.apple.developer.background-tasks.continued-processing.gpu`, capability name "Background GPU Access", `BOOLEAN` with the constant value `true`, `canRequestFromPortal: false`, valid for Development, Ad Hoc, Developer ID and App Store distribution.
-
-**Error codes confirmed:** `.unavailable = 1`, `.tooManyPendingTaskRequests = 2`, `.notPermitted = 3`, `.immediateRunIneligible = 4`. The header states `.unavailable` is what you get in the Simulator, and that `.notPermitted` also covers "the task requested additional `BGContinuedProcessingTaskRequestResources` that are unavailable".
-
-**The iOS 27 deprecation does not exist in this SDK.** In the iOS 26.5 SDK, `BGTaskScheduler` exposes only `submitTaskRequest:error:`, mapped by apinotes to Swift `submit(_:)`, with no deprecation attribute. There is no `submitTaskRequest(_:completionHandler:)` and no `async` variant to compile against, and no availability macro to guard. The library therefore uses the throwing `submit(_:)` and isolates the call behind a single submission helper so the iOS 27 path is a one-file change once an SDK that declares it ships.
+1. **Double submit** — tap twice quickly. Two tasks, no crash. This is the one that *kills the app* if the native registration guard is wrong, so it goes first.
+2. **Submit without progress** — background the app and wait. Expect a stop with reason `expired`.
+3. **Cancel from the Live Activity** — background, then cancel. Expect `expired` (iOS cannot distinguish this from an expiry).
+4. **Swipe the app away** — relaunch and check the reconcile lines. Expect one `app-terminated` record and no stop listener having fired. This cannot be automated; nothing on the device can simulate the swipe.
+5. **GPU-gated work** — check `supportsGPU`, then submit with `requiresGPU`.
+6. **Unpermitted identifier** — expect `not-permitted`, not a crash.
+7. **Cancel from the app** — expect `app-cancelled`.
 
 ## Requirements
 

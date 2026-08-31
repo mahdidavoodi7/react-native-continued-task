@@ -1,5 +1,5 @@
-import { ContinuedTasks } from '../ContinuedTasks'
-import { getSubmitErrorCode } from '../errors/getSubmitErrorCode'
+import { ContinuedTasks } from '../ContinuedTasks';
+import { getSubmitErrorCode } from '../errors/getSubmitErrorCode';
 
 /**
  * The web / non-native build. Metro resolves `ContinuedTasks.native.ts` ahead
@@ -8,10 +8,10 @@ import { getSubmitErrorCode } from '../errors/getSubmitErrorCode'
  */
 describe('ContinuedTasks on an unsupported platform', () => {
   it('reports every capability as unavailable', () => {
-    expect(ContinuedTasks.isSupported).toBe(false)
-    expect(ContinuedTasks.supportsGPU).toBe(false)
-    expect(ContinuedTasks.supportsReattach).toBe(false)
-  })
+    expect(ContinuedTasks.isSupported).toBe(false);
+    expect(ContinuedTasks.supportsGPU).toBe(false);
+    expect(ContinuedTasks.supportsReattach).toBe(false);
+  });
 
   it('rejects submit with a parseable unsupported-platform code', async () => {
     const error = await ContinuedTasks.submit({
@@ -19,11 +19,11 @@ describe('ContinuedTasks on an unsupported platform', () => {
       title: 'Exporting',
       subtitle: '0 of 10',
       totalUnitCount: 10,
-    }).catch((caught: unknown) => caught)
+    }).catch((caught: unknown) => caught);
 
-    expect(error).toBeInstanceOf(Error)
-    expect(getSubmitErrorCode(error)).toBe('unsupported-platform')
-  })
+    expect(error).toBeInstanceOf(Error);
+    expect(getSubmitErrorCode(error)).toBe('unsupported-platform');
+  });
 
   it('never silently succeeds — submit does not resolve', async () => {
     await expect(
@@ -33,18 +33,22 @@ describe('ContinuedTasks on an unsupported platform', () => {
         subtitle: '0 of 10',
         totalUnitCount: 10,
       })
-    ).rejects.toThrow()
-  })
+    ).rejects.toThrow();
+  });
 
   it('has no tasks to reconcile', async () => {
-    await expect(ContinuedTasks.getKnownTasks()).resolves.toEqual([])
-  })
+    await expect(ContinuedTasks.getKnownTasks()).resolves.toEqual([]);
+  });
 
   it('cannot re-attach to anything', async () => {
-    await expect(ContinuedTasks.attachToTask('any-id')).resolves.toBeUndefined()
-  })
+    await expect(
+      ContinuedTasks.attachToTask('any-id')
+    ).resolves.toBeUndefined();
+  });
 
   it('accepts forgetTasks so reconciliation code stays platform-agnostic', async () => {
-    await expect(ContinuedTasks.forgetTasks(['a', 'b'])).resolves.toBeUndefined()
-  })
-})
+    await expect(
+      ContinuedTasks.forgetTasks(['a', 'b'])
+    ).resolves.toBeUndefined();
+  });
+});

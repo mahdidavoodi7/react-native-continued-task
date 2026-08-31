@@ -10,8 +10,11 @@
  */
 export type TaskStopReason =
   /**
-   * The user cancelled the task from the UI the system shows for it —
-   * the iOS Live Activity, or the Android notification's cancel action.
+   * The user cancelled the task from the Android notification's cancel action.
+   *
+   * Android only. iOS routes user cancellation from the Live Activity through
+   * the same expiration handler as a system expiry, with nothing to tell the
+   * two apart, so a cancellation there arrives as `'expired'`.
    */
   | 'user-cancelled'
   /** The app itself called {@linkcode ContinuedTask.cancel}. */
@@ -19,7 +22,9 @@ export type TaskStopReason =
   /**
    * The system expired the task. On iOS this arrives through the task's
    * expiration handler, and a task that reports no progress will eventually
-   * be expired this way. On Android it maps to a generic WorkManager stop.
+   * be expired this way — as will one the user cancelled from the Live
+   * Activity, which iOS reports through the same handler. On Android it maps
+   * to a generic WorkManager stop.
    */
   | 'expired'
   /**
