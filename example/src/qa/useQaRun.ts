@@ -6,6 +6,7 @@ import {
   type ContinuedTask,
 } from 'react-native-continued-task';
 import { CHECKS } from './checks';
+import { ensureNotificationPermission } from './ensureNotificationPermission';
 import {
   QaResultsStore,
   type CheckResult,
@@ -114,6 +115,7 @@ export function useQaRun() {
     async (checkId: string) => {
       setBusy(checkId);
       try {
+        await ensureNotificationPermission();
         const task = await ContinuedTasks.submit({
           identifierPrefix: EXPORT_PREFIX,
           title: 'QA export',

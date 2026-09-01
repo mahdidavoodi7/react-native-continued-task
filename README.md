@@ -11,6 +11,16 @@ This is not a general "run some code in the background" library. Both platforms 
 
 > **Requires a dev build.** Nitro modules never work in Expo Go.
 
+## Preview
+
+<!-- Drop the recording in here. -->
+
+_Recording: the example app (**Motionary**) uploading new animations — the task keeps running after the app is backgrounded, with the system's own progress UI showing the title, subtitle and progress bar, and a cancel control._
+
+To record your own: run the example app, scroll to the **Preview** section at the bottom, tap **Start preview**, then background the app. It uploads 40 clips over about a minute, which is long enough to show the Live Activity on iOS or the ongoing notification on Android.
+
+> Apple's [WWDC25 session 227, _Finish tasks in the background_](https://developer.apple.com/videos/play/wwdc2025/227/), demonstrates the underlying iOS behaviour this library wraps. Watch it for the behaviour, not the code — its samples do not compile against the shipping SDK (see [SDK verification](#sdk-verification-2026-08-31)).
+
 ## Installation
 
 ```sh
@@ -248,6 +258,24 @@ useEffect(() => {
 
 On Android the worker can outlive the process, so a `KnownTask` may still be genuinely `running` — check `supportsReattach` and use `attachToTask(id)` to get the handle back rather than treating it as an orphan.
 
+### Android 13+ needs the notification permission at runtime
+
+The library declares `POST_NOTIFICATIONS` in its manifest, but on Android 13 (API 33) and newer that is only half the story: without a **runtime grant**, the foreground service still starts and your work still runs — the notification is just silently suppressed. The task looks like it did nothing.
+
+The library cannot ask on your behalf, because a permission prompt needs an Activity. Request it from your app before the first submit:
+
+```ts
+import { PermissionsAndroid, Platform } from 'react-native';
+
+if (Platform.OS === 'android' && Number(Platform.Version) >= 33) {
+  await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+  );
+}
+```
+
+If the user declines, submitting still works and the task still runs — they simply cannot see or cancel it. The example app does this in [`ensureNotificationPermission.ts`](example/src/qa/ensureNotificationPermission.ts).
+
 ### Android's 6-hour `dataSync` cap
 
 Targeting API 35+, all of an app's `dataSync` foreground services share **6 hours per 24-hour period**. At the limit the system calls `Service.onTimeout` and you have seconds before a `RemoteServiceException`; the library surfaces it as `fgs-timeout` and completes the worker. The budget resets when the user next foregrounds the app.
@@ -363,6 +391,35 @@ Thirteen checks: eight automatic, two you confirm by looking at the Live Activit
 | Xcode        | 16.4+ (26.x to build against the iOS 26 SDK)                                                            |
 | Android      | `minSdk` 24, `compileSdk` 34+, NDK 27+                                                                  |
 | Nitro        | `react-native-nitro-modules` 0.37.1                                                                     |
+
+## Who made this
+
+Built and maintained by [Mehdi](https://github.com/mahdidavoodi7)
+([@mehdi_made](https://x.com/mehdi_made) on X), the developer behind
+[Motionary](https://motionary.dev), a library of premium, production-ready React Native animations
+and interactions hand-crafted with Reanimated, Skia, Gesture Handler and Expo. This library came out
+of the far end of that work. A long export with a beautifully animated progress screen in front of it
+is still a broken feature if the work dies the second someone switches apps, and the progress bar
+nobody is looking at is the one that has to keep moving. iOS 26 finally has a real answer for that,
+Android has had one for years under a different name, and the two disagree about almost every detail,
+so the disagreements are written down here instead of smoothed over.
+
+If you're here for the visual half of the same problem:
+
+- [React Native animations](https://motionary.dev/animations): the drops, copy-paste animation
+  components with the interaction already tuned
+- [Builds](https://motionary.dev/builds): real React Native apps shipped end to end, with the drops inside
+- [Free React Native components](https://motionary.dev/components): a copy-paste reference set
+- [The Motionary blog](https://motionary.dev/blog), including
+  [the best React Native UI libraries in 2026](https://motionary.dev/blog/best-react-native-ui-libraries-2026)
+  and [why shape beats shimmer in skeleton loading](https://motionary.dev/blog/react-native-skeleton-loading)
+
+## Contributing
+
+Issues and PRs welcome, especially reports from hardware this has not run on yet: a non-iPhone iOS 26
+device, an Android 15 or 16 handset that can actually reach the six-hour `dataSync` cap, or a
+`STOP_REASON_QUOTA` seen in the wild. See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, and
+[docs/DEVICE-QA.md](docs/DEVICE-QA.md) if you want to re-run the iOS checklist and add a run log.
 
 ## License
 

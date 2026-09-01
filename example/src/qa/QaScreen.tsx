@@ -11,6 +11,7 @@ import {
 import { ContinuedTasks } from 'react-native-continued-task';
 import { buildReport } from './buildReport';
 import { CHECKS, type CheckDefinition, type CheckStatus } from './checks';
+import { usePreviewRun } from './usePreviewRun';
 import { useQaRun } from './useQaRun';
 
 const STATUS_LABEL: Record<CheckStatus, string> = {
@@ -31,6 +32,7 @@ const STATUS_COLOR: Record<CheckStatus, string> = {
 
 export function QaScreen() {
   const { state, busy, runAutomatic, arm, mark, reset } = useQaRun();
+  const preview = usePreviewRun();
 
   const counts = CHECKS.reduce(
     (acc, check) => {
@@ -117,6 +119,33 @@ export function QaScreen() {
           }
         />
       ))}
+
+      <View style={styles.preview}>
+        <Text style={styles.previewTitle}>Preview</Text>
+        <Text style={styles.previewBody}>
+          Starts a realistic upload — &ldquo;Uploading new animations&rdquo;, 40
+          clips over about a minute. Tap start, then background the app and
+          record the Live Activity or notification.
+        </Text>
+        <Text style={styles.previewStatus}>{preview.status}</Text>
+        <Pressable
+          style={[
+            styles.button,
+            preview.running ? styles.stop : styles.primary,
+          ]}
+          onPress={() => {
+            if (preview.running) {
+              preview.stop();
+              return;
+            }
+            preview.start().catch(() => undefined);
+          }}
+        >
+          <Text style={preview.running ? styles.stopText : styles.primaryText}>
+            {preview.running ? 'Cancel preview' : 'Start preview'}
+          </Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -235,5 +264,23 @@ const styles = StyleSheet.create({
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
   cardButton: { alignSelf: 'flex-start', marginTop: 10 },
+  preview: {
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 6,
+    marginBottom: 32,
+    backgroundColor: '#000',
+    gap: 6,
+  },
+  previewTitle: { fontSize: 17, fontWeight: '700', color: '#ffeb00' },
+  previewBody: { fontSize: 13, lineHeight: 18, color: '#d8d8dc' },
+  previewStatus: {
+    fontSize: 12,
+    color: '#8e8e93',
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    marginTop: 2,
+  },
+  stop: { backgroundColor: '#ff3b30' },
+  stopText: { fontSize: 13, fontWeight: '600', color: '#fff' },
   markRow: { flexDirection: 'row', gap: 8 },
 });
