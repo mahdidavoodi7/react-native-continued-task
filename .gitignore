@@ -98,3 +98,6 @@ android/generated
 
 # npm pack output attached to GitHub releases
 *.tgz
+
+# Stray screenshots dropped in the repo root while writing docs
+/[0-9]*.png

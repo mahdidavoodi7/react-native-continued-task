@@ -4,7 +4,7 @@
 [![npm downloads](https://img.shields.io/npm/dm/react-native-continued-task.svg)](https://www.npmjs.com/package/react-native-continued-task)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20Android-lightgrey.svg)
-[![guide](https://img.shields.io/badge/guide-motionary.dev-FEEB00.svg)](https://motionary.dev)
+[![guide](https://img.shields.io/badge/guide-motionary.dev-FEEB00.svg)](https://motionary.dev/blog/react-native-background-task)
 
 Run user-initiated work that keeps going after the user leaves your app — a large export, an upload, a batch encode — behind one cross-platform API.
 
@@ -478,6 +478,7 @@ Yes. The Expo config plugin is a convenience; the [Bare workflow](#bare-workflow
 
 ## Related resources
 
+- [React Native background tasks that survive the user leaving](https://motionary.dev/blog/react-native-background-task) — the long-form write-up behind this library
 - [motionary.dev](https://motionary.dev?utm_source=github&utm_medium=readme&utm_campaign=react-native-continued-task) — React Native components, animations and guides
 - [Apple: Finish tasks in the background (WWDC25 session 227)](https://developer.apple.com/videos/play/wwdc2025/227/) — the iOS behaviour this library wraps
 - [`BGContinuedProcessingTask` documentation](https://developer.apple.com/documentation/backgroundtasks/bgcontinuedprocessingtask)
