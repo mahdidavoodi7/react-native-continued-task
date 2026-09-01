@@ -2,10 +2,6 @@
 
 Run user-initiated work that keeps going after the user leaves your app — a large export, an upload, a batch encode — behind one cross-platform API.
 
-## Preview
-
-The example app, **Motionary**, uploading new animations. The work was started by a tap in the app; both recordings are of the task continuing after the app was left — the system draws this UI, not the library.
-
 <table>
   <tr>
     <td align="center"><b>iOS 26</b> — Live Activity on the Lock Screen</td>
@@ -19,9 +15,6 @@ The example app, **Motionary**, uploading new animations. The work was started b
 
 Both show the same task: a title and subtitle that update as it runs, live progress, and a control to cancel it. On iOS that cancel arrives as `expired` — the system routes it through the same handler as an expiry and gives the app no way to tell them apart. On Android the same tap arrives as `user-cancelled`.
 
-To record your own: run the example app, scroll to the **Preview** card at the bottom, tap **Start preview**, then background the app. It uploads 40 clips over about a minute.
-
-> Apple's [WWDC25 session 227, _Finish tasks in the background_](https://developer.apple.com/videos/play/wwdc2025/227/), demonstrates the underlying iOS behaviour. Watch it for the behaviour, not the code — its samples do not compile against the shipping SDK (see [SDK verification](#sdk-verification-2026-08-31)).
 
 ## Features
 
