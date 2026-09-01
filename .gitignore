@@ -92,3 +92,6 @@ android/generated
 # Source screen recordings for docs/media/*.gif — the GIFs are committed, these are not
 /*.mov
 /*.mp4
+
+# TypeScript incremental build metadata
+*.tsbuildinfo
