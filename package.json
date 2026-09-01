@@ -49,7 +49,8 @@
     "build:plugin": "tsc --build plugin",
     "harness": "EXPO_PUBLIC_RN_HARNESS=1 harness --config jest.harness.config.mjs",
     "harness:android": "EXPO_PUBLIC_RN_HARNESS=1 harness --config jest.harness.config.mjs --harnessRunner android",
-    "harness:ios": "EXPO_PUBLIC_RN_HARNESS=1 harness --config jest.harness.config.mjs --harnessRunner ios"
+    "harness:ios": "EXPO_PUBLIC_RN_HARNESS=1 harness --config jest.harness.config.mjs --harnessRunner ios",
+    "release": "release-it --only-version"
   },
   "keywords": [
     "react-native",
@@ -87,6 +88,7 @@
     "@react-native-harness/platform-apple": "1.4.1",
     "@react-native/babel-preset": "0.85.0",
     "@react-native/eslint-config": "0.85.0",
+    "@release-it/conventional-changelog": "12.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
@@ -103,6 +105,7 @@
     "react-native-builder-bob": "^0.41.0",
     "react-native-harness": "1.4.1",
     "react-native-nitro-modules": "0.37.1",
+    "release-it": "21.0.2",
     "ts-jest": "^29.4.0",
     "turbo": "^2.9.16",
     "typescript": "^6.0.3"
@@ -159,6 +162,46 @@
   "peerDependenciesMeta": {
     "react-native-nitro-modules": {
       "optional": true
+    }
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "tagName": "v${version}",
+      "requireCleanWorkingDir": true,
+      "requireBranch": "main"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true,
+      "releaseName": "v${version}",
+      "assets": [
+        "react-native-continued-task-*.tgz"
+      ],
+      "host": "github.com",
+      "repo": "mahdidavoodi7/react-native-continued-task"
+    },
+    "hooks": {
+      "before:init": [
+        "yarn lint",
+        "yarn typecheck",
+        "yarn test",
+        "yarn build:plugin"
+      ],
+      "after:bump": "yarn prepare && npm pack"
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular",
+        "infile": "CHANGELOG.md",
+        "context": {
+          "host": "https://github.com",
+          "owner": "mahdidavoodi7",
+          "repository": "react-native-continued-task"
+        }
+      }
     }
   }
 }

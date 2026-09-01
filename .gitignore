@@ -95,3 +95,6 @@ android/generated
 
 # TypeScript incremental build metadata
 *.tsbuildinfo
+
+# npm pack output attached to GitHub releases
+*.tgz
