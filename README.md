@@ -220,6 +220,8 @@ interface TaskStopEvent {
 
 `BGContinuedProcessingTask` delivers user cancellation and system expiration through the same `expirationHandler`, which takes no arguments. There is nothing in the shipping SDK that distinguishes them, so this library reports `'expired'` with `native.name` of `'expirationHandler'` rather than guessing at `'user-cancelled'`. Treat the two as one case on iOS. Android _can_ distinguish them, and does.
 
+This is confirmed on hardware, not just read out of the header: cancelling from the Live Activity on iOS 26.6.1 reported `expired`. See the [run log](docs/device-qa-runs/2026-09-01-ios-26.6.1.md).
+
 ## Platform behavior you have to design around
 
 ### Submission must be foreground and user-initiated
@@ -313,14 +315,14 @@ WorkManager declares `SystemForegroundService` but not your `foregroundServiceTy
 
 `BGContinuedProcessingTask` cannot be tested in CI and does not work in the Simulator — `BGTaskScheduler` returns `.unavailable` there, and Apple's debug SPI for triggering tasks is device-only and grounds for App Store rejection in a shipping build. Everything else is automated.
 
-| Layer                | Runs on        | Covers                                                                                                                            | Command                                                            |
-| -------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Jest                 | CI             | `getSubmitErrorCode`, the unsupported-platform manager, and the config plugin's mods against a real `AndroidManifest.xml` fixture | `yarn test`                                                        |
-| Kotlin JUnit         | CI             | The WorkManager stop-reason mapping and the persisted record's JS spellings                                                       | `./gradlew :react-native-continued-task:testDebugUnitTest`         |
-| Android instrumented | emulator       | The reconciliation store and the foreground-service notification against a real Android runtime                                   | `./gradlew :react-native-continued-task:connectedDebugAndroidTest` |
-| React Native Harness | emulator       | The real HybridObjects inside the real app — task lifecycle, progress clamping, stop events, listener removal                     | `yarn harness:android` — **see the caveat below**                  |
-| Native compile       | CI             | That the Swift and Kotlin satisfy the generated specs                                                                             | `yarn turbo run build:ios build:android`                           |
-| Manual device QA     | iPhone, iOS 26 | Everything about `BGContinuedProcessingTask`                                                                                      | the example app                                                    |
+| Layer                | Runs on        | Covers                                                                                                                                     | Command                                                            |
+| -------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Jest                 | CI             | `getSubmitErrorCode`, the unsupported-platform manager, and the config plugin's mods against a real `AndroidManifest.xml` fixture          | `yarn test`                                                        |
+| Kotlin JUnit         | CI             | The WorkManager stop-reason mapping and the persisted record's JS spellings                                                                | `./gradlew :react-native-continued-task:testDebugUnitTest`         |
+| Android instrumented | emulator       | The reconciliation store and the foreground-service notification against a real Android runtime                                            | `./gradlew :react-native-continued-task:connectedDebugAndroidTest` |
+| React Native Harness | emulator       | The real HybridObjects inside the real app — task lifecycle, progress clamping, stop events, listener removal                              | `yarn harness:android` — **see the caveat below**                  |
+| Native compile       | CI             | That the Swift and Kotlin satisfy the generated specs                                                                                      | `yarn turbo run build:ios build:android`                           |
+| Manual device QA     | iPhone, iOS 26 | Everything about `BGContinuedProcessingTask` — **13/13 passing on iOS 26.6.1, [2026-09-01](docs/device-qa-runs/2026-09-01-ios-26.6.1.md)** | the example app                                                    |
 
 Two choices worth explaining:
 
