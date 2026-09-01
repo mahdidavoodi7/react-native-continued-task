@@ -1,4 +1,4 @@
-# react-native-continued-task
+# react-native-continued-task: Continued Background Tasks for React Native (iOS 26 & Android)
 
 [![npm](https://img.shields.io/npm/v/react-native-continued-task.svg)](https://www.npmjs.com/package/react-native-continued-task)
 [![npm downloads](https://img.shields.io/npm/dm/react-native-continued-task.svg)](https://www.npmjs.com/package/react-native-continued-task)
@@ -7,6 +7,12 @@
 [![guide](https://img.shields.io/badge/guide-motionary.dev-FEEB00.svg)](https://motionary.dev)
 
 Run user-initiated work that keeps going after the user leaves your app — a large export, an upload, a batch encode — behind one cross-platform API.
+
+## Overview
+
+**react-native-continued-task** is a React Native and Expo library for **long-running background tasks that survive the app being backgrounded**. It wraps iOS 26's [`BGContinuedProcessingTask`](https://developer.apple.com/documentation/backgroundtasks/bgcontinuedprocessingtask) and Android's [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) foreground services behind a single typed API, so an upload, export, or batch encode the user started keeps running — with the progress UI each platform draws for it.
+
+It is built on [Nitro Modules](https://nitro.margelo.com) with Swift on iOS and Kotlin on Android, ships an Expo config plugin, and is written for the constraints these APIs actually impose rather than hiding them.
 
 <table>
   <tr>
@@ -440,6 +446,43 @@ Issues and PRs welcome, especially reports from hardware this has not run on yet
 device, an Android 15 or 16 handset that can actually reach the six-hour `dataSync` cap, or a
 `STOP_REASON_QUOTA` seen in the wild. See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, and
 [docs/DEVICE-QA.md](docs/DEVICE-QA.md) if you want to re-run the iOS checklist and add a run log.
+
+## FAQ
+
+**Does it work in Expo Go?**
+No. Nitro modules need native code, so Expo Go can never load them. Use a development build (`npx expo prebuild` then `expo run:ios` / `run:android`).
+
+**Can I test this on the iOS Simulator?**
+No. `BGTaskScheduler` returns `.unavailable` on the Simulator — Apple documents this in the SDK header. `isSupported` reports `false` there and every submission rejects. iOS behaviour has to be verified on a physical device running iOS 26+; see [docs/DEVICE-QA.md](docs/DEVICE-QA.md).
+
+**How long can a continued processing task run on iOS?**
+Apple does not publish a maximum duration or a concurrent-task ceiling, so this library does not quote figures. The "1 refresh + 10 processing tasks" limit in `BGTaskScheduler`'s documentation is about a different task type and does not apply here.
+
+**What happens when the user swipes my app out of the app switcher?**
+iOS cancels the task and — verbatim from Apple — "the app doesn't receive an indication of cancellation in that case." No stop listener, no expiration handler. Call [`getKnownTasks()`](#getknowntasks-promiseknowntask) on your next launch; work interrupted that way comes back with the `app-terminated` stop reason.
+
+**Why does cancelling from the Live Activity report `expired` instead of `user-cancelled`?**
+Because iOS routes user cancellation and system expiry through the same zero-argument `expirationHandler`, with nothing to distinguish them. This library reports what it can justify rather than guessing. Android _can_ tell them apart, and reports `user-cancelled`.
+
+**My Android notification never appears. Is the task running?**
+Almost certainly yes. On Android 13+ you must request `POST_NOTIFICATIONS` at runtime — without the grant the foreground service still starts and the work still runs, but the notification is suppressed. See [Android 13+ needs the notification permission at runtime](#android-13-needs-the-notification-permission-at-runtime).
+
+**How is this different from `expo-background-task` or `BGProcessingTask`?**
+Those schedule deferrable work the system runs _later_, when conditions are favourable — you do not control when, and the user sees nothing. A continued processing task starts **immediately**, because the user just asked for it, and the system shows them progress they can cancel. Different tool for a different job.
+
+**Do I need the background GPU entitlement?**
+Only for tasks submitted with `ios.requiresGPU`. Non-GPU work needs no entitlement. Note that `com.apple.developer.background-tasks.continued-processing.gpu` is valid only for paid Apple Developer Program teams — a free personal team cannot sign it.
+
+**Does it work without Expo?**
+Yes. The Expo config plugin is a convenience; the [Bare workflow](#bare-workflow) section lists the `Info.plist` and `AndroidManifest.xml` entries to add by hand.
+
+## Related resources
+
+- [motionary.dev](https://motionary.dev?utm_source=github&utm_medium=readme&utm_campaign=react-native-continued-task) — React Native components, animations and guides
+- [Apple: Finish tasks in the background (WWDC25 session 227)](https://developer.apple.com/videos/play/wwdc2025/227/) — the iOS behaviour this library wraps
+- [`BGContinuedProcessingTask` documentation](https://developer.apple.com/documentation/backgroundtasks/bgcontinuedprocessingtask)
+- [Android: long-running workers](https://developer.android.com/develop/background-work/background-tasks/persistent/how-to/long-running)
+- [Nitro Modules](https://nitro.margelo.com) — the native module framework this is built on
 
 ## Sponsor
 
