@@ -1,5 +1,11 @@
 # react-native-continued-task
 
+[![npm](https://img.shields.io/npm/v/react-native-continued-task.svg)](https://www.npmjs.com/package/react-native-continued-task)
+[![npm downloads](https://img.shields.io/npm/dm/react-native-continued-task.svg)](https://www.npmjs.com/package/react-native-continued-task)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20Android-lightgrey.svg)
+[![guide](https://img.shields.io/badge/guide-motionary.dev-FEEB00.svg)](https://motionary.dev)
+
 Run user-initiated work that keeps going after the user leaves your app — a large export, an upload, a batch encode — behind one cross-platform API.
 
 <table>
@@ -14,7 +20,6 @@ Run user-initiated work that keeps going after the user leaves your app — a la
 </table>
 
 Both show the same task: a title and subtitle that update as it runs, live progress, and a control to cancel it. On iOS that cancel arrives as `expired` — the system routes it through the same handler as an expiry and gives the app no way to tell them apart. On Android the same tap arrives as `user-cancelled`.
-
 
 ## Features
 
@@ -435,6 +440,12 @@ Issues and PRs welcome, especially reports from hardware this has not run on yet
 device, an Android 15 or 16 handset that can actually reach the six-hour `dataSync` cap, or a
 `STOP_REASON_QUOTA` seen in the wild. See [CONTRIBUTING.md](CONTRIBUTING.md) for the dev loop, and
 [docs/DEVICE-QA.md](docs/DEVICE-QA.md) if you want to re-run the iOS checklist and add a run log.
+
+## Sponsor
+
+Built and maintained by [**motionary.dev**](https://motionary.dev?utm_source=github&utm_medium=readme&utm_campaign=react-native-continued-task) — free, and free to use.
+
+If this saved you a week of reading Apple's background-task documentation, take a look at what else is over there.
 
 ## License
 
