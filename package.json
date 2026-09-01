@@ -1,6 +1,6 @@
 {
   "name": "react-native-continued-task",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Run user-initiated work that keeps going in the background: iOS 26 BGContinuedProcessingTask and Android WorkManager foreground services behind one API. A free package from https://motionary.dev",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
