@@ -2,15 +2,6 @@
 
 Run user-initiated work that keeps going after the user leaves your app — a large export, an upload, a batch encode — behind one cross-platform API.
 
-| Platform            | Backed by                                                           |
-| ------------------- | ------------------------------------------------------------------- |
-| iOS 26+             | `BGContinuedProcessingTask`, with the system-provided Live Activity |
-| Android (minSdk 24) | WorkManager `CoroutineWorker` running as a foreground service       |
-
-This is not a general "run some code in the background" library. Both platforms only grant this kind of runtime to work the **user just asked for**, both show the user UI they can cancel from, and both will kill work that looks stalled. The API is shaped around those constraints rather than hiding them.
-
-> **Requires a dev build.** Nitro modules never work in Expo Go.
-
 ## Preview
 
 The example app, **Motionary**, uploading new animations. The work was started by a tap in the app; both recordings are of the task continuing after the app was left — the system draws this UI, not the library.
@@ -32,11 +23,31 @@ To record your own: run the example app, scroll to the **Preview** card at the b
 
 > Apple's [WWDC25 session 227, _Finish tasks in the background_](https://developer.apple.com/videos/play/wwdc2025/227/), demonstrates the underlying iOS behaviour. Watch it for the behaviour, not the code — its samples do not compile against the shipping SDK (see [SDK verification](#sdk-verification-2026-08-31)).
 
+## Features
+
+- 📱 One API over iOS 26's [`BGContinuedProcessingTask`](https://developer.apple.com/documentation/backgroundtasks/bgcontinuedprocessingtask) and Android's WorkManager foreground services
+- 🔔 System-drawn progress UI — a Live Activity on iOS, an ongoing notification on Android — that the **user can cancel from**
+- 📊 Progress reporting that is load-bearing, not decoration: iOS expires tasks that report none
+- ♻️ `getKnownTasks()` reconciles work lost when the app is swiped away — the only way to detect it on iOS, which reports it no other way
+- 🧭 Typed submit errors and stop reasons, each carrying the raw platform domain and code instead of one generic failure
+- 🧩 Expo config plugin for the `Info.plist`, entitlement and `AndroidManifest` wiring
+- ✅ Verified on a real device — [13/13 on iOS 26.6.1](docs/device-qa-runs/2026-09-01-ios-26.6.1.md)
+- 🔥 Powered by [Nitro Modules](https://nitro.margelo.com)
+
+> This is not a general "run some code in the background" library. Both platforms only grant this runtime to work the **user just asked for**, both show UI they can cancel from, and both kill work that looks stalled. The API is shaped around those constraints rather than hiding them.
+
+| Platform            | Backed by                                                           |
+| ------------------- | ------------------------------------------------------------------- |
+| iOS 26+             | `BGContinuedProcessingTask`, with the system-provided Live Activity |
+| Android (minSdk 24) | WorkManager `CoroutineWorker` running as a foreground service       |
+
 ## Installation
 
 ```sh
 npm install react-native-continued-task react-native-nitro-modules
 ```
+
+> **Requires a dev build.** Nitro modules never work in Expo Go.
 
 `react-native-nitro-modules` is an _optional_ peer dependency, so npm and yarn resolve the single copy your app already has instead of nesting a second one. A nested second copy crashes at startup with `Nitro was installed twice`.
 
@@ -62,7 +73,7 @@ Add the config plugin and declare the identifier prefixes your app will submit u
 
 Then `npx expo prebuild`. The plugin writes `BGTaskSchedulerPermittedIdentifiers` on iOS (expanding each prefix to `<prefix>.*`), the GPU entitlement when `enableGPU` is set, and on Android the foreground-service permissions plus the merged `SystemForegroundService` block. See [Config plugin](#config-plugin) for the full option list and the bare-workflow equivalents.
 
-## Quick start
+## Usage
 
 ```ts
 import {
