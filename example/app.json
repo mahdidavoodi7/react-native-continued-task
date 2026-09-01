@@ -14,7 +14,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "continuedtask.example",
-      "deploymentTarget": "15.1"
+      "deploymentTarget": "15.1",
+      "appleTeamId": "SWB36HXMK2"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,7 +42,8 @@
             "dataSync"
           ]
         }
-      ]
+      ],
+      "./plugins/withNotificationIcon"
     ]
   }
 }

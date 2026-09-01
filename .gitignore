@@ -88,3 +88,7 @@ android/generated
 
 # React Native Harness cache
 .harness/
+
+# Source screen recordings for docs/media/*.gif — the GIFs are committed, these are not
+/*.mov
+/*.mp4

@@ -33,7 +33,10 @@ function baseOptions(title: string) {
     title,
     subtitle: 'QA',
     totalUnitCount: 10,
-    android: { notificationChannelName: 'QA tasks' },
+    android: {
+      notificationChannelName: 'QA tasks',
+      notificationIcon: 'ic_notification',
+    },
   };
 }
 

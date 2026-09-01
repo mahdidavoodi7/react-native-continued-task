@@ -1,7 +1,7 @@
 {
   "name": "react-native-continued-task",
   "version": "0.1.0",
-  "description": "Run user-initiated work that keeps going in the background: iOS 26 BGContinuedProcessingTask and Android WorkManager foreground services behind one API.",
+  "description": "Run user-initiated work that keeps going in the background: iOS 26 BGContinuedProcessingTask and Android WorkManager foreground services behind one API. A free package from https://motionary.dev",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -74,7 +74,7 @@
   "bugs": {
     "url": "https://github.com/mahdidavoodi7/react-native-continued-task/issues"
   },
-  "homepage": "https://github.com/mahdidavoodi7/react-native-continued-task#readme",
+  "homepage": "https://motionary.dev?utm_source=npm&utm_medium=package",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

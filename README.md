@@ -13,13 +13,24 @@ This is not a general "run some code in the background" library. Both platforms 
 
 ## Preview
 
-<!-- Drop the recording in here. -->
+The example app, **Motionary**, uploading new animations. The work was started by a tap in the app; both recordings are of the task continuing after the app was left — the system draws this UI, not the library.
 
-_Recording: the example app (**Motionary**) uploading new animations — the task keeps running after the app is backgrounded, with the system's own progress UI showing the title, subtitle and progress bar, and a cancel control._
+<table>
+  <tr>
+    <td align="center"><b>iOS 26</b> — Live Activity on the Lock Screen</td>
+    <td align="center"><b>Android</b> — foreground-service notification</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/media/ios.gif" width="280" alt="iOS Live Activity showing Uploading new animations with a progress bar and a stop button" /></td>
+    <td align="center"><img src="docs/media/android.gif" width="280" alt="Android notification showing Uploading new animations with a progress bar and a Cancel action" /></td>
+  </tr>
+</table>
 
-To record your own: run the example app, scroll to the **Preview** section at the bottom, tap **Start preview**, then background the app. It uploads 40 clips over about a minute, which is long enough to show the Live Activity on iOS or the ongoing notification on Android.
+Both show the same task: a title and subtitle that update as it runs, live progress, and a control to cancel it. On iOS that cancel arrives as `expired` — the system routes it through the same handler as an expiry and gives the app no way to tell them apart. On Android the same tap arrives as `user-cancelled`.
 
-> Apple's [WWDC25 session 227, _Finish tasks in the background_](https://developer.apple.com/videos/play/wwdc2025/227/), demonstrates the underlying iOS behaviour this library wraps. Watch it for the behaviour, not the code — its samples do not compile against the shipping SDK (see [SDK verification](#sdk-verification-2026-08-31)).
+To record your own: run the example app, scroll to the **Preview** card at the bottom, tap **Start preview**, then background the app. It uploads 40 clips over about a minute.
+
+> Apple's [WWDC25 session 227, _Finish tasks in the background_](https://developer.apple.com/videos/play/wwdc2025/227/), demonstrates the underlying iOS behaviour. Watch it for the behaviour, not the code — its samples do not compile against the shipping SDK (see [SDK verification](#sdk-verification-2026-08-31)).
 
 ## Installation
 

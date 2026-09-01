@@ -121,7 +121,10 @@ export function useQaRun() {
           title: 'QA export',
           subtitle: 'starting',
           totalUnitCount: 60,
-          android: { notificationChannelName: 'QA tasks' },
+          android: {
+            notificationChannelName: 'QA tasks',
+            notificationIcon: 'ic_notification',
+          },
         });
         armedTask.current = task;
         setResult(checkId, {

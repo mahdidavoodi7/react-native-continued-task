@@ -53,7 +53,10 @@ export function usePreviewRun() {
         title: 'Uploading new animations',
         subtitle: `0 of ${TOTAL_CLIPS} clips`,
         totalUnitCount: TOTAL_CLIPS,
-        android: { notificationChannelName: 'Uploads' },
+        android: {
+          notificationChannelName: 'Uploads',
+          notificationIcon: 'ic_notification',
+        },
       });
       task.current = started;
       setRunning(true);
